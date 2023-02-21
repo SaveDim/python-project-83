@@ -1,12 +1,12 @@
 name: flake8
 
 on:
-  pull_request:
+  push:
     branches:
       - main
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
