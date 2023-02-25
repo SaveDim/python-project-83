@@ -10,3 +10,6 @@ lint:
 
 test:
 	poetry run pytest
+
+coverarge:
+	poetry run pytest --cov .
