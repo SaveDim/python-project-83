@@ -20,7 +20,9 @@ load_dotenv()
 app.config.update(SECRET_KEY=os.getenv("SECRET_KEY"))
 
 DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URI = os.getenv("DATABASE_URI")
 
+conn = psycopg2.connect(DATABASE_URI)
 
 def is_valid(url):
     if len(url) > 255:
@@ -38,7 +40,6 @@ def index():
 
 @app.post("/urls")
 def add_url():
-    conn = psycopg2.connect(dbname="page_analyzer", user="savedim", password="", host="127.0.0.1", port="5432")
     url_from_form = request.form.to_dict()
     url = url_from_form.get("url")
     if not is_valid(url)['result']:
@@ -69,3 +70,12 @@ def add_url():
             url_id = result[0][0]
             cursor.close()
     return redirect(url_for("index", url_id=url_id))
+
+
+@app.get('/urls')
+def show_urls():
+    cursor = conn.cursor()
+    with cursor as curs:
+        curs.execute('SELECT * FROM urls ORDER BY id DESC')
+        result = cursor.fetchall()
+        return result
