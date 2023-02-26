@@ -46,7 +46,9 @@ def add_url():
     if not is_valid(url)["result"]:
         flash(is_valid(url)["message"], "danger")
         messages = get_flashed_messages(with_categories=True)
-        return render_template("index.html", url=url_from_form, messages=messages), 422
+        return render_template("index.html",
+                               url=url_from_form,
+                               messages=messages), 422
     else:
         cursor = conn.cursor()
         cursor.execute(
