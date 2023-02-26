@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<main class="flex-grow-1">
+    <div class="container-lg mt-3">
+        <table>
+            <tr>
+                {% for url in result %}
+                <td>url</td>
+                {% endfor %}
+            </tr>
+        </table>
+    </div>
+  </main>
+{% endblock %}
