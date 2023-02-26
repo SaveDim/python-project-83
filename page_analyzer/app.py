@@ -24,12 +24,13 @@ DATABASE_URI = os.getenv("DATABASE_URI")
 
 conn = psycopg2.connect(DATABASE_URI)
 
+
 def is_valid(url):
     if len(url) > 255:
-        return {'result': False, 'message': 'URL превышает 255 символов'}
+        return {"result": False, "message": "URL превышает 255 символов"}
     elif not validators.url(url):
-        return {'result': False, 'message': 'Некорректный URL'}
-    return {'result': True}
+        return {"result": False, "message": "Некорректный URL"}
+    return {"result": True}
 
 
 @app.route("/")
@@ -42,12 +43,10 @@ def index():
 def add_url():
     url_from_form = request.form.to_dict()
     url = url_from_form.get("url")
-    if not is_valid(url)['result']:
-        flash(is_valid(url)['message'], "danger")
+    if not is_valid(url)["result"]:
+        flash(is_valid(url)["message"], "danger")
         messages = get_flashed_messages(with_categories=True)
-        return render_template("index.html",
-                               url=url_from_form,
-                               messages=messages), 422
+        return render_template("index.html", url=url_from_form, messages=messages), 422
     else:
         cursor = conn.cursor()
         cursor.execute(
@@ -72,10 +71,10 @@ def add_url():
     return redirect(url_for("index", url_id=url_id))
 
 
-@app.get('/urls')
+@app.get("/urls")
 def show_urls():
     cursor = conn.cursor()
     with cursor as curs:
-        curs.execute('SELECT * FROM urls ORDER BY id DESC')
+        curs.execute("SELECT * FROM urls ORDER BY id DESC")
         result = cursor.fetchall()
         return result
