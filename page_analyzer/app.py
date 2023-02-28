@@ -18,6 +18,8 @@ app = Flask(__name__)
 load_dotenv()
 
 app.config.update(SECRET_KEY=os.getenv("SECRET_KEY"))
+app.config.update(DATABASE_URL=os.getenv("DATABASE_URL"))
+app.config.update(DATABASE_URI=os.getenv("DATABASE_URI"))
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 DATABASE_URI = os.getenv("DATABASE_URI")
@@ -76,18 +78,25 @@ def add_url():
 @app.route("/urls/<id>")
 def show_single_url(id):
     messages = get_flashed_messages(with_categories=True)
-    with psycopg2.connect(app.config['DATABASE_URL']) as conn:
+    with psycopg2.connect(app.config['DATABASE_URI']) as conn:
         with conn.cursor() as curs:
-            curs.execute("SELECT id, name, created_at FROM urls WHERE id = %s", (id,))
+            curs.execute(
+                "SELECT id, name, created_at FROM urls WHERE id = %s",
+                (id,)
+            )
+
             result_url = curs.fetchone()
-            curs.execute("SELECT id, url_id, status_code, h1, title, description, "
-                         "created_at FROM url_checks WHERE url_id = %s "
-                         "ORDER BY id DESC", (id,))
+            curs.execute(
+                "SELECT id, url_id, status_code, h1, title, description, "
+                "created_at FROM url_checks WHERE url_id = %s "
+                "ORDER BY id DESC", (id,)
+            )
+
             result_checks = curs.fetchall()
-    url_id, name, created_at = result_url
+    id, name, created_at = result_url
     return render_template(
         '/url.html',
-        # url_id=url_id,
+        url_id=id,
         name=name,
         created_at=created_at,
         result_checks=result_checks,

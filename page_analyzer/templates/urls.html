@@ -6,7 +6,7 @@
         <table data-test="urls">
             {% for url in urls %}
             <tr>
-                <td>{{ url[0] }} {{ url[1] }} {{ url[2] }}</td>
+                <td>{{ url[0] }} <a href="/urls/{{ urls[0][0] }}">{{ url[1] }}</a> {{ url[2] }}</td>
             </tr>
             {% endfor %}
         </table>
