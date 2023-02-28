@@ -73,10 +73,33 @@ def add_url():
     return redirect(url_for("index", url_id=url_id))
 
 
+@app.route("/urls/<id>")
+def show_single_url(id):
+    messages = get_flashed_messages(with_categories=True)
+    with psycopg2.connect(app.config['DATABASE_URL']) as conn:
+        with conn.cursor() as curs:
+            curs.execute("SELECT id, name, created_at FROM urls WHERE id = %s", (id,))
+            result_url = curs.fetchone()
+            curs.execute("SELECT id, url_id, status_code, h1, title, description, "
+                         "created_at FROM url_checks WHERE url_id = %s "
+                         "ORDER BY id DESC", (id,))
+            result_checks = curs.fetchall()
+    url_id, name, created_at = result_url
+    return render_template(
+        '/url.html',
+        # url_id=url_id,
+        name=name,
+        created_at=created_at,
+        result_checks=result_checks,
+        messages=messages
+    )
+
+
 @app.get("/urls")
 def show_urls():
     cursor = conn.cursor()
     with cursor as curs:
         curs.execute("SELECT * FROM urls ORDER BY id DESC")
         result = cursor.fetchall()
-        return result
+        cursor.close()
+    return render_template('urls.html', urls=result)
