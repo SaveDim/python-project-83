@@ -75,6 +75,11 @@ def add_url():
     return redirect(url_for("index", url_id=url_id))
 
 
+@app.get('/urls')
+def get_url_list():
+    return render_template("urls.html")
+
+
 @app.route("/urls/<id>")
 def show_single_url(id):
     messages = get_flashed_messages(with_categories=True)
@@ -95,7 +100,7 @@ def show_single_url(id):
             result_checks = curs.fetchall()
     id, name, created_at = result_url
     return render_template(
-        '/url.html',
+        "url.html",
         url_id=id,
         name=name,
         created_at=created_at,

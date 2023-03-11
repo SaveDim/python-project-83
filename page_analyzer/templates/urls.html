@@ -10,7 +10,7 @@
                             <tr>
                                 <th>ID</th>
                                 <th>Имя</th>
-                                <th>Дата последней проверки</th>
+                                <th>Последняя проверка</th>
                                 <th>Код ответа</th>
                             </tr>
                             {% if data %}
@@ -18,7 +18,7 @@
                             <tr>
                                 <td>{{ id }}</td>
                                 <td>
-                                <a href="{{ url_for('show_url', id=id) }}">{{ name }}</a>
+                                <a href="{{ url_for('show_urls', id=id) }}">{{ name }}</a>
                                 </td>
                                 <td>{{ created_at.strftime('%d-%m-%Y') if created_at else created_at }}</td>
                                 <td>{{ status_code }}</td>
