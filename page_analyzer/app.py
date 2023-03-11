@@ -41,12 +41,11 @@ def index():
     return render_template("index.html", messages=messages)
 
 
-@app.post("/urls")
+@app.route("/urls", methods=['POST'])
 def add_url():
-    url_from_form = request.form.to_dict()
-    url = url_from_form.get("url")
-    if not is_valid(url)["result"]:
-        flash(is_valid(url)["message"], "danger")
+    url_from_form = request.form['url']
+    if not is_valid(url_from_form)["result"]:
+        flash(is_valid(url_from_form)["message"], "danger")
         messages = get_flashed_messages(with_categories=True)
         return render_template("index.html",
                                url=url_from_form,
@@ -55,17 +54,17 @@ def add_url():
         cursor = conn.cursor()
         cursor.execute(
             "SELECT id FROM urls WHERE urls.name = %s LIMIT 1",
-            (url,),
+            (url_from_form,),
         )
         result = cursor.fetchall()
         if not result:
-            cursor.execute("INSERT INTO urls (name) VALUES (%s)", (url,))
+            cursor.execute("INSERT INTO urls (name) VALUES (%s)", (url_from_form,))
             conn.commit()
             flash("Страница успешно добавлена", "success")
 
             cursor.execute(
                 "SELECT id FROM urls WHERE urls.name = %s LIMIT 1",
-                (url,),
+                (url_from_form,),
             )
             url_id = cursor.fetchall()[0][0]
         else:
@@ -75,7 +74,7 @@ def add_url():
     return redirect(url_for("index", url_id=url_id))
 
 
-@app.get('/urls')
+@app.route("/urls", methods=['GET'])
 def get_url_list():
     return render_template("urls.html")
 
@@ -83,7 +82,7 @@ def get_url_list():
 @app.route("/urls/<id>")
 def show_single_url(id):
     messages = get_flashed_messages(with_categories=True)
-    with psycopg2.connect(app.config['DATABASE_URI']) as conn:
+    with conn:
         with conn.cursor() as curs:
             curs.execute(
                 "SELECT id, name, created_at FROM urls WHERE id = %s",
@@ -91,20 +90,19 @@ def show_single_url(id):
             )
 
             result_url = curs.fetchone()
-            curs.execute(
-                "SELECT id, url_id, status_code, h1, title, description, "
-                "created_at FROM url_checks WHERE url_id = %s "
-                "ORDER BY id DESC", (id,)
-            )
-
-            result_checks = curs.fetchall()
-    id, name, created_at = result_url
+            # curs.execute(
+            #     "SELECT id, name, created_at, h1, title, description, "
+            #     "created_at FROM urls WHERE url_id = %s "
+            #     "ORDER BY id DESC", (id,)
+            # )
+            #
+            # result_checks = curs.fetchall()
+            url_id, name, created_at = result_url
     return render_template(
-        "url.html",
-        url_id=id,
+        "/url.html",
+        url_id=url_id,
         name=name,
         created_at=created_at,
-        result_checks=result_checks,
         messages=messages
     )
 
