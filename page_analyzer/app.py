@@ -41,9 +41,9 @@ def index():
     return render_template("index.html", messages=messages)
 
 
-@app.route("/urls", methods=['POST'])
+@app.post("/urls")
 def add_url():
-    url_from_form = request.form['url']
+    url_from_form = request.form.get('url')
     if not is_valid(url_from_form)["result"]:
         flash(is_valid(url_from_form)["message"], "danger")
         messages = get_flashed_messages(with_categories=True)
