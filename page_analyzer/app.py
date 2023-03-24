@@ -76,45 +76,35 @@ def add_url():
     return redirect(url_for("index", url_id=url_id))
 
 
-@app.route("/urls", methods=['GET'])
-def get_url_list():
-    return render_template("urls.html")
-
-
-@app.route("/urls/<id>")
+@app.route("/urls/<int:id>")
 def show_single_url(id):
     messages = get_flashed_messages(with_categories=True)
-    with conn:
-        with conn.cursor() as curs:
-            curs.execute(
-                "SELECT id, name, created_at FROM urls WHERE id = %s",
-                (id,)
-            )
-
-            result_url = curs.fetchone()
-            # curs.execute(
-            #     "SELECT id, name, created_at, h1, title, description, "
-            #     "created_at FROM urls WHERE url_id = %s "
-            #     "ORDER BY id DESC", (id,)
-            # )
-            #
-            # result_checks = curs.fetchall()
-            url_id, name, created_at = result_url
-    return render_template(
-        "/url.html",
-        url_id=url_id,
-        name=name,
-        created_at=created_at,
-        messages=messages
+    conn = get_conn()
+    cursor = conn.cursor()
+    cursor.execute(
+        """SELECT id, name, crated_at
+        FROM urls
+        WHERE urls.id = %s
+        LIMIT 1""",
+        (id,)
     )
+    result = cursor.fetchall()
+    if not result:
+        conn.close()
+        return render_template(
+            "/index.html",
+            url_id=id,
+            messages=messages
+        )
 
 
 @app.get("/urls")
 def show_urls():
-    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    conn = get_conn()
+    cursor = conn.cursor()
     cursor.execute("SELECT * FROM urls ORDER BY id DESC")
     urls = cursor.fetchall()
-    cursor.close()
+    conn.close()
     return render_template(
         'urls.html',
         urls=urls,
