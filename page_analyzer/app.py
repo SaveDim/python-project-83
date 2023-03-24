@@ -76,26 +76,26 @@ def add_url():
     return redirect(url_for("index", url_id=url_id))
 
 
-@app.route("/urls/<int:id>")
+@app.route("/urls/<id>")
 def show_single_url(id):
     messages = get_flashed_messages(with_categories=True)
     conn = get_conn()
     cursor = conn.cursor()
     cursor.execute(
-        """SELECT id, name, crated_at
+        """SELECT *
         FROM urls
         WHERE urls.id = %s
         LIMIT 1""",
         (id,)
     )
     result = cursor.fetchall()
-    if not result:
-        conn.close()
-        return render_template(
-            "/index.html",
-            url_id=id,
-            messages=messages
-        )
+    conn.close()
+    return render_template(
+        "/url.html",
+        url_id=id,
+        result=result,
+        messages=messages
+    )
 
 
 @app.get("/urls")
