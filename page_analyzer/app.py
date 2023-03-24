@@ -1,6 +1,8 @@
 import os
 
 import psycopg2
+from psycopg2.extras import RealDictCursor
+
 from flask import (
     Flask,
     render_template,
@@ -13,6 +15,7 @@ from flask import (
 import validators
 from dotenv import load_dotenv
 
+
 app = Flask(__name__)
 
 load_dotenv()
@@ -24,15 +27,13 @@ app.config.update(DATABASE_URI=os.getenv("DATABASE_URI"))
 DATABASE_URL = os.getenv("DATABASE_URL")
 DATABASE_URI = os.getenv("DATABASE_URI")
 
-conn = psycopg2.connect(DATABASE_URI)
+
+def get_conn():
+    return psycopg2.connect(DATABASE_URI)
 
 
 def is_valid(url):
-    if len(url) > 255:
-        return {"result": False, "message": "URL превышает 255 символов"}
-    elif not validators.url(url):
-        return {"result": False, "message": "Некорректный URL"}
-    return {"result": True}
+    return validators.url(url) and validators.length(url, max=255)
 
 
 @app.route("/")
@@ -44,33 +45,34 @@ def index():
 @app.post("/urls")
 def add_url():
     url_from_form = request.form.get('url')
-    if not is_valid(url_from_form)["result"]:
-        flash(is_valid(url_from_form)["message"], "danger")
+    if not is_valid(url_from_form):
+        flash('Некорректный URL', "danger")
         messages = get_flashed_messages(with_categories=True)
         return render_template("index.html",
                                url=url_from_form,
                                messages=messages), 422
-    else:
-        cursor = conn.cursor()
+
+    conn = get_conn()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT id FROM urls WHERE urls.name = %s LIMIT 1",
+        (url_from_form,),
+    )
+    result = cursor.fetchall()
+    if not result:
+        cursor.execute("INSERT INTO urls (name) VALUES (%s)", (url_from_form,))
+        conn.commit()
+        flash("Страница успешно добавлена", "success")
+
         cursor.execute(
             "SELECT id FROM urls WHERE urls.name = %s LIMIT 1",
             (url_from_form,),
         )
-        result = cursor.fetchall()
-        if not result:
-            cursor.execute("INSERT INTO urls (name) VALUES (%s)", (url_from_form,))
-            conn.commit()
-            flash("Страница успешно добавлена", "success")
-
-            cursor.execute(
-                "SELECT id FROM urls WHERE urls.name = %s LIMIT 1",
-                (url_from_form,),
-            )
-            url_id = cursor.fetchall()[0][0]
-        else:
-            flash("Страница уже существует", "info")
-            url_id = result[0][0]
-            cursor.close()
+        url_id = cursor.fetchall()[0][0]
+    else:
+        flash("Страница уже существует", "info")
+        url_id = result[0][0]
+        cursor.close()
     return redirect(url_for("index", url_id=url_id))
 
 
@@ -109,9 +111,12 @@ def show_single_url(id):
 
 @app.get("/urls")
 def show_urls():
-    cursor = conn.cursor()
-    with cursor as curs:
-        curs.execute("SELECT * FROM urls ORDER BY id DESC")
-        result = cursor.fetchall()
-        cursor.close()
-    return render_template('urls.html', urls=result)
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    cursor.execute("SELECT * FROM urls ORDER BY id DESC")
+    urls = cursor.fetchall()
+    cursor.close()
+    return render_template(
+        'urls.html',
+        urls=urls,
+        messages=get_flashed_messages(with_categories=True),
+    )
