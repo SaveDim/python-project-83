@@ -13,18 +13,15 @@
                                 <th>Последняя проверка</th>
                                 <th>Код ответа</th>
                             </tr>
-                            {% if data %}
-                            {% for id, name, created_at, status_code in data %}
+                            {% for id, name, created_at in urls %}
                             <tr>
                                 <td>{{ id }}</td>
                                 <td>
                                 <a href="{{ url_for('show_urls', id=id) }}">{{ name }}</a>
                                 </td>
                                 <td>{{ created_at.strftime('%d-%m-%Y') if created_at else created_at }}</td>
-                                <td>{{ status_code }}</td>
                             </tr>
                             {% endfor %}
-                            {% endif %}
                         </tbody>
                     </table>
                 </div>
