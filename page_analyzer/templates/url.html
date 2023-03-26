@@ -34,7 +34,7 @@
                 </div>
 
                 <h2 class="mt-5 mb-3">Проверки</h2>
-                <form method="post" action="/urls/1/checks">
+                <form method="post" action="/urls/{{ url_id }}/checks">  <!-- URL ID SINTAX -->
                     <input type="submit" class="btn btn-primary" value="Запустить проверку">
                 </form>
                 <div>
@@ -48,13 +48,11 @@
                             <th>description</th>
                             <th>Дата создания</th>
                         </tr>
-
-                        {% for check in checks %}
                         <tr>
-                          <th>'HI'</th>
-                        </tr>
-                        {% endfor %}
 
+                          <td>{{ url_id }}</td>
+
+                        </tr>
                           </tbody>
                     </table>
                 </div>
