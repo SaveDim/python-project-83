@@ -47,7 +47,12 @@ def add_url():
     if not is_valid(url_from_form):
         flash("Некорректный URL", "danger")
         messages = get_flashed_messages(with_categories=True)
-        return render_template("index.html", url=url_from_form, messages=messages), 422
+        return (
+            render_template(
+                "index.html", url=url_from_form, messages=messages
+            ),
+            422,
+        )
 
     conn = get_conn()
     cursor = conn.cursor()
@@ -87,7 +92,9 @@ def show_single_url(id):
     )
     result = cursor.fetchall()
     conn.close()
-    return render_template("/url.html", url_id=id, result=result, messages=messages)
+    return render_template(
+        "/url.html", url_id=id, result=result, messages=messages
+    )
 
 
 @app.get("/urls")
