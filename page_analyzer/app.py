@@ -109,3 +109,23 @@ def show_urls():
         urls=urls,
         messages=get_flashed_messages(with_categories=True),
     )
+
+
+@app.post("/urls/<id>/checks")
+def check_url(id):
+    messages = get_flashed_messages(with_categories=True)
+    conn = get_conn()
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO url_checks
+            (url_id, title, created_at)
+        VALUES (%s, %s, %s)
+        """,
+        )
+    conn.commit()
+    conn.close()
+    return render_template(
+        "/url.html",
+        url_id=id,
+        messages=messages
+    )
