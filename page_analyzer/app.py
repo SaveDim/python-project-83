@@ -43,13 +43,11 @@ def index():
 
 @app.post("/urls")
 def add_url():
-    url_from_form = request.form.get('url')
+    url_from_form = request.form.get("url")
     if not is_valid(url_from_form):
-        flash('Некорректный URL', "danger")
+        flash("Некорректный URL", "danger")
         messages = get_flashed_messages(with_categories=True)
-        return render_template("index.html",
-                               url=url_from_form,
-                               messages=messages), 422
+        return render_template("index.html", url=url_from_form, messages=messages), 422
 
     conn = get_conn()
     cursor = conn.cursor()
@@ -85,16 +83,11 @@ def show_single_url(id):
         FROM urls
         WHERE urls.id = %s
         LIMIT 1""",
-        (id,)
+        (id,),
     )
     result = cursor.fetchall()
     conn.close()
-    return render_template(
-        "/url.html",
-        url_id=id,
-        result=result,
-        messages=messages
-    )
+    return render_template("/url.html", url_id=id, result=result, messages=messages)
 
 
 @app.get("/urls")
@@ -105,7 +98,7 @@ def show_urls():
     urls = cursor.fetchall()
     conn.close()
     return render_template(
-        'urls.html',
+        "urls.html",
         urls=urls,
         messages=get_flashed_messages(with_categories=True),
     )
@@ -116,16 +109,13 @@ def check_url(id):
     messages = get_flashed_messages(with_categories=True)
     conn = get_conn()
     cursor = conn.cursor()
-    cursor.execute("""
+    cursor.execute(
+        """
         INSERT INTO url_checks
             (url_id, title, created_at)
         VALUES (%s, %s, %s)
         """,
-        )
+    )
     conn.commit()
     conn.close()
-    return render_template(
-        "/url.html",
-        url_id=id,
-        messages=messages
-    )
+    return render_template("/url.html", url_id=id, messages=messages)
