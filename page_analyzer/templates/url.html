@@ -24,24 +24,22 @@
                 </tr>
                 <tr>
                     <td>Имя</td>
-                    <td>{{ result[0][1] }}</td>
+                    <td>{{ url.name }}</td>
                 </tr>
                 <tr>
                     <td>Дата создания</td>
-                    <td>{{ result[0][2] }}</td>
+                    <td>{{ url.created_at }}</td>
                 </tr>
                 </tbody>
             </table>
         </div>
 
         <h2 class="mt-5 mb-3">Проверки</h2>
-        <form method="post" action="/urls/{{ url_id }}/checks">
-            <input type="submit" class="btn btn-primary"
-                   value="Запустить проверку">
+        <form method="post" action="/urls/{{ url.id }}/checks">
+            <input type="submit" class="btn btn-primary" value="Запустить проверку">
         </form>
         <div>
-            <table class="table table-bordered table-hover mt-2"
-                   data-test="url">
+            <table class="table table-bordered table-hover mt-2" data-test="url">
                 <tbody>
                 <tr>
                     <th>ID</th>
@@ -51,12 +49,16 @@
                     <th>description</th>
                     <th>Дата создания</th>
                 </tr>
+                {% for check in checks %}
                 <tr>
-
-                    <td>{{ url_id }}</td>
-                    <td>{{ result[0][2] }}</td>
-
+                    <td>{{ check.id }}</td>
+                    <td>{{ check.status_code }}</td>
+                    <td>{{ check.h1 }}</td>
+                    <td>{{ check.title }}</td>
+                    <td>{{ check.description }}</td>
+                    <td>{{ check.created_at }}</td>
                 </tr>
+                {% endfor %}
                 </tbody>
             </table>
         </div>
