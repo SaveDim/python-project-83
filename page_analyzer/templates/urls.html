@@ -13,13 +13,12 @@
                                 <th>Последняя проверка</th>
                                 <th>Код ответа</th>
                             </tr>
-                            {% for id, name, created_at in urls %}
+                            {% for url in urls %}
                             <tr>
-                                <td>{{ id }}</td>
-                                <td>
-                                <a href="{{ url_for('show_single_url', id=id) }}">{{ name }}</a>
-                                </td>
-                                <td>{{ created_at.strftime('%d-%m-%Y') if created_at else created_at }}</td>
+                                <td>{{ url.id }}</td>
+                                <td><a href="/urls/{{ url.id }}">{{ url.name }}</a></td>
+                                <td>{{ url.last_checked }}</td>
+                                <td>{{ url.status_code }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
