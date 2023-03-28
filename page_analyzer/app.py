@@ -1,6 +1,8 @@
 import os
 
 import psycopg2
+import bs4
+import requests
 
 from flask import (
     Flask,
@@ -111,27 +113,35 @@ def show_urls():
     )
 
 
-@app.post("/urls/<id>/checks")
+@app.post('/urls/<int:id>/checks')
 def check_url(id):
-    messages = get_flashed_messages(with_categories=True)
     conn = get_conn()
-    cursor = conn.cursor()
-    cursor.execute(
-        """
-        SELECT * FROM urls WHERE id = %s LIMIT 1""", (id,)
-    )
+    cur = conn.cursor()
+    cur.execute('SELECT name FROM urls WHERE id = %s LIMIT 1', (id,))
+    url_to_check = cur.fetchall()[0][0]
+    try:
+        response = requests.get(url_to_check)
+        response.raise_for_status()
+    except requests.exceptions.RequestException:
+        conn.close()
+        flash('Произошла ошибка при проверке', 'danger')
+        return redirect(url_for('show_single_url', url_id=id))
 
-    result = cursor.fetchall()
-    cursor.execute(
-        """
-        INSERT INTO url_checks
-            (url_id, status_code, h1, title, description, created_at)
-        VALUES (%s, %s, %s, %s, %s, %s)
-        """, (id, 0, '', '', '', result[0][2])
-    )
+    status_code = response.status_code
+    parsed_page = bs4.BeautifulSoup(response.text, 'html.parser')
+    title = parsed_page.title.text if parsed_page.find('title') else ''
+    h1 = parsed_page.h1.text if parsed_page.find('h1') else ''
+    description = parsed_page.find("meta", attrs={"name": "description"})
+    description = description.get("content") if description else ''
+
+    cur.execute("""
+        INSERT INTO public.url_checks
+            (url_id, status_code, title, h1, description)
+        VALUES (%s, %s, %s, %s, %s)
+        """,
+                (id, status_code, title, h1, description),
+                )
     conn.commit()
     conn.close()
-    return redirect(url_for('show_single_url',
-                            id=id,
-                            result=result[0][2],
-                            messages=messages))
+    flash('Страница успешно проверена', 'success')
+    return redirect(url_for('show_single_url', url_id=id))
