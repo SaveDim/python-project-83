@@ -3,6 +3,8 @@ import os
 import psycopg2
 import bs4
 import requests
+import validators
+from dotenv import load_dotenv
 
 from flask import (
     Flask,
@@ -13,9 +15,6 @@ from flask import (
     redirect,
     flash,
 )
-import validators
-from dotenv import load_dotenv
-
 
 app = Flask(__name__)
 
@@ -73,15 +72,16 @@ def add_url():
             (url_from_form,),
         )
         url_id = cursor.fetchall()[0][0]
+        conn.close()
     else:
         flash("Страница уже существует", "info")
+        conn.close()
         url_id = result[0][0]
-        cursor.close()
-    return redirect(url_for("index", url_id=url_id))
+    return redirect(url_for("show_single_url", url_id=url_id))
 
 
-@app.route("/urls/<int:id>")
-def show_single_url(id):
+@app.route("/urls/<int:url_id>")
+def show_single_url(url_id):
     messages = get_flashed_messages(with_categories=True)
     conn = get_conn()
     cursor = conn.cursor()
@@ -90,58 +90,71 @@ def show_single_url(id):
         FROM urls
         WHERE urls.id = %s
         LIMIT 1""",
-        (id,),
+        (url_id,),
     )
     result = cursor.fetchall()
+    cursor.execute("""
+                    SELECT
+                    id, status_code, h1, title,
+                    description, created_at
+                    FROM url_checks
+                    WHERE url_checks.url_id = %s
+                    """,
+                   (url_id,)
+                   )
+    checks = cursor.fetchall()
     conn.close()
+
     return render_template(
-        "/url.html", url_id=id, result=result, messages=messages
+        "/url.html", url=result[0], checks=checks, messages=messages
     )
 
 
 @app.get("/urls")
 def show_urls():
+    messages = get_flashed_messages(with_categories=True)
     conn = get_conn()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM urls ORDER BY id DESC")
     urls = cursor.fetchall()
     conn.close()
     return render_template(
-        "urls.html",
+        "/urls.html",
         urls=urls,
-        messages=get_flashed_messages(with_categories=True),
+        messages=messages,
     )
 
 
-@app.post('/urls/<int:id>/checks')
-def check_url(id):
+@app.post("/urls/<int:url_id>/checks")
+def check_url(url_id):
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute('SELECT name FROM urls WHERE id = %s LIMIT 1', (id,))
+    cur.execute("SELECT name FROM urls WHERE id = %s LIMIT 1", (url_id,))
     url_to_check = cur.fetchall()[0][0]
     try:
         response = requests.get(url_to_check)
         response.raise_for_status()
     except requests.exceptions.RequestException:
         conn.close()
-        flash('Произошла ошибка при проверке', 'danger')
-        return redirect(url_for('show_single_url', url_id=id))
+        flash("Произошла ошибка при проверке", "danger")
+        return redirect(url_for("show_single_url", url_id=url_id))
 
     status_code = response.status_code
-    parsed_page = bs4.BeautifulSoup(response.text, 'html.parser')
-    title = parsed_page.title.text if parsed_page.find('title') else ''
-    h1 = parsed_page.h1.text if parsed_page.find('h1') else ''
+    parsed_page = bs4.BeautifulSoup(response.text, "html.parser")
+    title = parsed_page.title.text if parsed_page.find("title") else ""
+    h1 = parsed_page.h1.text if parsed_page.find("h1") else ""
     description = parsed_page.find("meta", attrs={"name": "description"})
-    description = description.get("content") if description else ''
+    description = description.get("content") if description else ""
 
-    cur.execute("""
+    cur.execute(
+        """
         INSERT INTO public.url_checks
             (url_id, status_code, title, h1, description)
         VALUES (%s, %s, %s, %s, %s)
         """,
-                (id, status_code, title, h1, description),
-                )
+        (url_id, status_code, title, h1, description),
+    )
     conn.commit()
     conn.close()
-    flash('Страница успешно проверена', 'success')
-    return redirect(url_for('show_single_url', url_id=id))
+    flash("Страница успешно проверена", "success")
+    return redirect(url_for("show_single_url", url_id=url_id))
