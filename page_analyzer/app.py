@@ -78,7 +78,7 @@ def add_url():
     return redirect(url_for("index", url_id=url_id))
 
 
-@app.route("/urls/<id>")
+@app.route("/urls/<int:id>")
 def show_single_url(id):
     messages = get_flashed_messages(with_categories=True)
     conn = get_conn()
@@ -118,11 +118,20 @@ def check_url(id):
     cursor = conn.cursor()
     cursor.execute(
         """
+        SELECT * FROM urls WHERE id = %s LIMIT 1""", (id,)
+    )
+
+    result = cursor.fetchall()
+    cursor.execute(
+        """
         INSERT INTO url_checks
-            (url_id, title, created_at)
-        VALUES (%s, %s, %s)
-        """,
+            (url_id, status_code, h1, title, description, created_at)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """, (id, 0, '', '', '', result[0][2])
     )
     conn.commit()
     conn.close()
-    return render_template("/url.html", url_id=id, messages=messages)
+    return redirect(url_for('show_single_url',
+                            id=id,
+                            result=result[0][2],
+                            messages=messages))
