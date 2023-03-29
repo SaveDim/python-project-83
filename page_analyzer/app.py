@@ -29,7 +29,7 @@ DATABASE_URI = os.getenv("DATABASE_URI")
 
 
 def get_conn():
-    return psycopg2.connect(DATABASE_URI)
+    return psycopg2.connect(DATABASE_URL)
 
 
 def is_valid(url):
@@ -117,12 +117,14 @@ def show_urls():
     messages = get_flashed_messages(with_categories=True)
     conn = get_conn()
     cursor = conn.cursor()
-    cursor.execute("SELECT urls.id, urls.name, url_checks.created_at, "
-                         "url_checks.status_code FROM urls "
-                         "LEFT JOIN url_checks ON urls.id = url_checks.url_id "
-                         "WHERE url_checks.url_id IS NULL OR "
-                         "url_checks.id = (SELECT MAX(url_checks.id) FROM url_checks "
-                         "WHERE url_checks.url_id = urls.id) ORDER BY urls.id DESC ")
+    cursor.execute(
+        "SELECT urls.id, urls.name, url_checks.created_at, "
+        "url_checks.status_code FROM urls "
+        "LEFT JOIN url_checks ON urls.id = url_checks.url_id "
+        "WHERE url_checks.url_id IS NULL OR "
+        "url_checks.id = (SELECT MAX(url_checks.id) FROM url_checks "
+        "WHERE url_checks.url_id = urls.id) ORDER BY urls.id DESC "
+    )
     urls = cursor.fetchall()
     conn.close()
     return render_template(
