@@ -29,7 +29,7 @@ DATABASE_URI = os.getenv("DATABASE_URI")
 
 
 def get_conn():
-    return psycopg2.connect(DATABASE_URI)
+    return psycopg2.connect(DATABASE_URL)
 
 
 def is_valid(url):
