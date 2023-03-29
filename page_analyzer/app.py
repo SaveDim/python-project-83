@@ -93,7 +93,8 @@ def show_single_url(url_id):
         (url_id,),
     )
     result = cursor.fetchall()
-    cursor.execute("""
+    cursor.execute(
+        """
                     SELECT
                     id, status_code, h1, title,
                     description, created_at
@@ -101,8 +102,8 @@ def show_single_url(url_id):
                     WHERE url_checks.url_id = %s
                     ORDER BY id DESC
                     """,
-                   (url_id,)
-                   )
+        (url_id,),
+    )
     checks = cursor.fetchall()
     conn.close()
 
@@ -118,14 +119,15 @@ def show_urls():
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM urls ORDER BY id DESC")
     urls = cursor.fetchall()
-    cursor.execute("""
+    cursor.execute(
+        """
                         SELECT
                         status_code, created_at
                         FROM url_checks
                         WHERE url_checks.url_id = %s
                         """,
-                   (urls[0][0],)
-                   )
+        (urls[0][0],),
+    )
     data = cursor.fetchall()
     conn.close()
     return render_template(
