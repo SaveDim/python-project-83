@@ -16,9 +16,9 @@
                 </tr>
                 {% for url in urls %}
                 <tr>
-                    <td>{{ url.id }}</td>
-                    <td><a href="/urls/{{ url_id }}">{{ url.name }}</a></td>
-                    <td>{{ url.last_checked }}</td>
+                    <td>{{ url[0] }}</td>
+                    <td><a href="/urls/{{ url[0] }}">{{ url[1] }}</a></td>
+                    <td>{{ today }}</td>
                     <td>{{ url.status_code }}</td>
                 </tr>
                 {% endfor %}

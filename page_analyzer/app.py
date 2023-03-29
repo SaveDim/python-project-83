@@ -2,6 +2,7 @@ import os
 
 import psycopg2
 import bs4
+import datetime
 import requests
 import validators
 from dotenv import load_dotenv
@@ -112,6 +113,7 @@ def show_single_url(url_id):
 
 @app.get("/urls")
 def show_urls():
+    today = datetime.date.today().isoformat()
     messages = get_flashed_messages(with_categories=True)
     conn = get_conn()
     cursor = conn.cursor()
@@ -121,6 +123,7 @@ def show_urls():
     return render_template(
         "/urls.html",
         urls=urls,
+        today=today,
         messages=messages,
     )
 
@@ -128,9 +131,9 @@ def show_urls():
 @app.post("/urls/<int:url_id>/checks")
 def check_url(url_id):
     conn = get_conn()
-    cur = conn.cursor()
-    cur.execute("SELECT name FROM urls WHERE id = %s LIMIT 1", (url_id,))
-    url_to_check = cur.fetchall()[0][0]
+    cursor = conn.cursor()
+    cursor.execute("SELECT name FROM urls WHERE id = %s LIMIT 1", (url_id,))
+    url_to_check = cursor.fetchall()[0][0]
     try:
         response = requests.get(url_to_check)
         response.raise_for_status()
@@ -146,7 +149,7 @@ def check_url(url_id):
     description = parsed_page.find("meta", attrs={"name": "description"})
     description = description.get("content") if description else ""
 
-    cur.execute(
+    cursor.execute(
         """
         INSERT INTO public.url_checks
             (url_id, status_code, title, h1, description)
