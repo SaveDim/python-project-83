@@ -2,7 +2,6 @@ import os
 
 import psycopg2
 import bs4
-import datetime
 import requests
 import validators
 from dotenv import load_dotenv
@@ -100,6 +99,7 @@ def show_single_url(url_id):
                     description, created_at
                     FROM url_checks
                     WHERE url_checks.url_id = %s
+                    ORDER BY id DESC
                     """,
                    (url_id,)
                    )
@@ -113,17 +113,26 @@ def show_single_url(url_id):
 
 @app.get("/urls")
 def show_urls():
-    today = datetime.date.today().isoformat()
     messages = get_flashed_messages(with_categories=True)
     conn = get_conn()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM urls ORDER BY id DESC")
     urls = cursor.fetchall()
+    cursor.execute("""
+                        SELECT
+                        status_code, created_at
+                        FROM url_checks
+                        WHERE url_checks.url_id = %s
+                        """,
+                   (urls[0][0],)
+                   )
+    data = cursor.fetchall()
     conn.close()
     return render_template(
         "/urls.html",
         urls=urls,
-        today=today,
+        last_check=data[0][1],
+        status_code=data[0][0],
         messages=messages,
     )
 
