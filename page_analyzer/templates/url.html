@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block main %}
+
+
+{% if messages %}
+{% for category, message in messages %}
+<div class="alert alert-{{ category }}" role="alert">{{ message }}</div>
+{% endfor %}
+{% endif %}
+
+<main class="flex-grow-1">
+    <div class="container-lg mt-3">
+        <h1>Сайт: {{ url[1] }}</h1>
+
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover text-nowrap"
+                   data-test="url">
+                <tbody>
+                <tr>
+                    <td>ID</td>
+                    <td>{{ url[0] }}</td>
+                </tr>
+                <tr>
+                    <td>Имя</td>
+                    <td>{{ url[1] }}</td>
+                </tr>
+                <tr>
+                    <td>Дата создания</td>
+                    <td>{{ url[2] }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h2 class="mt-5 mb-3">Проверки</h2>
+        <form method="post" action="/urls/{{ url[0] }}/checks">
+            <input type="submit" class="btn btn-primary" value="Запустить проверку">
+        </form>
+        <div>
+            <table class="table table-bordered table-hover mt-2" data-test="checks">
+                <tbody>
+                <tr>
+                    <th>ID</th>
+                    <th>Код ответа</th>
+                    <th>h1</th>
+                    <th>title</th>
+                    <th>description</th>
+                    <th>Дата создания</th>
+                </tr>
+                {% for check in checks %}
+                <tr>
+                    <td>{{ check[0] }}</td>
+                    <td>{{ check[1] }}</td>
+                    <td>{{ check[2] }}</td>
+                    <td>{{ check[3] }}</td>
+                    <td>{{ check[4] }}</td>
+                    <td>{{ check[5] }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+{% endblock main %}
