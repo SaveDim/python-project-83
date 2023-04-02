@@ -13,7 +13,7 @@ lint:
 test:
 	poetry run pytest
 
-coverarge:
+coverage:
 	poetry run pytest --cov .
 
 
