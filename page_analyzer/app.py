@@ -167,3 +167,8 @@ def check_url(url_id):
     conn.close()
     flash("Страница успешно проверена", "success")
     return redirect(url_for("show_single_url", url_id=url_id))
+
+
+if __name__ == '__main__':
+    app.debug = True
+    app.run()
