@@ -169,6 +169,6 @@ def check_url(url_id):
     return redirect(url_for("show_single_url", url_id=url_id))
 
 
-if __name__ == '__main__':
-    app.debug = True
-    app.run()
+# if __name__ == '__main__':
+#     app.debug = True
+#     app.run()
