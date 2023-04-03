@@ -28,6 +28,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 # DATABASE_URI = os.getenv("DATABASE_URI")
 SECRET_KEY = os.getenv('SECRET_KEY')
 
+
 def get_conn():
     return psycopg2.connect(DATABASE_URL)
 
