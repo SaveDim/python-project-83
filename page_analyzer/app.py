@@ -20,13 +20,13 @@ app = Flask(__name__)
 
 load_dotenv()
 
-app.config.update(SECRET_KEY=os.getenv("SECRET_KEY"))
-app.config.update(DATABASE_URL=os.getenv("DATABASE_URL"))
-app.config.update(DATABASE_URI=os.getenv("DATABASE_URI"))
+app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
+app.config['DATABASE_URL'] = os.getenv("DATABASE_URL")
+# app.config.update(DATABASE_URI=os.getenv("DATABASE_URI"))
 
 DATABASE_URL = os.getenv("DATABASE_URL")
-DATABASE_URI = os.getenv("DATABASE_URI")
-
+# DATABASE_URI = os.getenv("DATABASE_URI")
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 def get_conn():
     return psycopg2.connect(DATABASE_URL)
