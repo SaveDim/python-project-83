@@ -14,6 +14,6 @@ CREATE TABLE IF NOT EXISTS url_checks (
   status_code SMALLINT,
   h1 VARCHAR(255),
   title VARCHAR(255),
-  description VARCHAR(255),
+  description VARCHAR,
   created_at DATE DEFAULT now()
 );
