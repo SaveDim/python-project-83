@@ -1,5 +1,5 @@
 #development variables
-PORT ?= 5711
+PORT ?= 8000
 
 dev:
 	poetry run flask --app page_analyzer:app --debug run

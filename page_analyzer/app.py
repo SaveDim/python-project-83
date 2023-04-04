@@ -22,10 +22,8 @@ load_dotenv()
 
 app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
 app.config['DATABASE_URL'] = os.getenv("DATABASE_URL")
-# app.config.update(DATABASE_URI=os.getenv("DATABASE_URI"))
 
 DATABASE_URL = os.getenv("DATABASE_URL")
-# DATABASE_URI = os.getenv("DATABASE_URI")
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 
@@ -168,8 +166,3 @@ def check_url(url_id):
     conn.close()
     flash("Страница успешно проверена", "success")
     return redirect(url_for("show_single_url", url_id=url_id))
-
-
-# if __name__ == '__main__':
-#     app.debug = True
-#     app.run()
