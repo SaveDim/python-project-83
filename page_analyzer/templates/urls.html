@@ -19,8 +19,8 @@
                 <tr>
                     <td>{{ id }}</td>
                     <td><a href="/urls/{{ id }}">{{ name }}</a></td>
-                    <td>{{ created_at }}</td>
-                    <td>{{ status_code }}</td>
+                    <td>{% if created_at %}{{ created_at }}{% endif %}</td>
+                    <td>{% if status_code %}{{ status_code }}{% endif %}</td>
                 </tr>
                 {% endfor %}
                 {% endif %}
