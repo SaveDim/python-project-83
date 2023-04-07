@@ -135,7 +135,7 @@ def show_urls():
     )
 
 
-@app.route("/urls/<int:url_id>/checks")
+@app.post("/urls/<int:url_id>/checks")
 def check_url(url_id):
     conn = get_conn()
     cursor = conn.cursor()
