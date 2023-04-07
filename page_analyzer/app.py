@@ -66,7 +66,7 @@ def add_url():
         cursor.execute("INSERT INTO urls (name) VALUES (%s)", (url_from_form,))
         conn.commit()
         flash("Страница успешно добавлена", "success")
-        session["name"] = url_from_form[4:]
+        session["name"] = url_from_form
 
         cursor.execute(
             "SELECT id FROM urls WHERE urls.name = %s LIMIT 1",
@@ -141,7 +141,7 @@ def check_url(url_id):
     cursor = conn.cursor()
     cursor.execute("SELECT name FROM urls WHERE id = %s LIMIT 1", (url_id,))
     url_to_check = cursor.fetchall()[0][0]
-    session["name"] = url_to_check[4:]
+    session["name"] = url_to_check
     try:
         response = requests.get(url_to_check)
         response.raise_for_status()
