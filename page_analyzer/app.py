@@ -29,7 +29,11 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 
 
 def is_valid(url):
-    return validators.url(url) and validators.length(url, max=255)
+    if not validators.length(url, max=255):
+        return {'result': False, 'message': 'URL превышает 255 символов'}
+    elif not validators.url(url):
+        return {'result': False, 'message': 'Некорректный URL'}
+    return {'result': True}
 
 
 @app.route("/")
@@ -41,8 +45,9 @@ def index():
 @app.post("/urls")
 def add_url():
     url_from_form = request.form.get("url")
-    if not is_valid(url_from_form):
-        flash("Некорректный URL", "danger")
+    validated = is_valid(url_from_form)
+    if not validated['result']:
+        flash(validated['message'], "danger")
         messages = get_flashed_messages(with_categories=True)
         return (
             render_template(
