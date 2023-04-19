@@ -1,10 +1,10 @@
 import os
 
-import psycopg2
 import bs4
 import requests
 import validators
 from dotenv import load_dotenv
+from .db_works import get_urls_list, insert_url_to_db, get_data_single_url, get_conn
 
 from flask import (
     Flask,
@@ -26,10 +26,6 @@ app.config['DATABASE_URL'] = os.getenv("DATABASE_URL")
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 SECRET_KEY = os.getenv('SECRET_KEY')
-
-
-def get_conn():
-    return psycopg2.connect(DATABASE_URL)
 
 
 def is_valid(url):
@@ -116,18 +112,7 @@ def show_single_url(url_id):
 @app.get("/urls")
 def show_urls():
     messages = get_flashed_messages(with_categories=True)
-    conn = get_conn()
-    cursor = conn.cursor()
-    cursor.execute(
-        "SELECT urls.id, urls.name, url_checks.created_at, "
-        "url_checks.status_code FROM urls "
-        "LEFT JOIN url_checks ON urls.id = url_checks.url_id "
-        "WHERE url_checks.url_id IS NULL OR "
-        "url_checks.id = (SELECT MAX(url_checks.id) FROM url_checks "
-        "WHERE url_checks.url_id = urls.id) ORDER BY urls.id DESC "
-    )
-    urls = cursor.fetchall()
-    conn.close()
+    urls = get_urls_list()
     return render_template(
         "/urls.html",
         urls=urls,
