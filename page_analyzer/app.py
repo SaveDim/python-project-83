@@ -4,7 +4,10 @@ import bs4
 import requests
 import validators
 from dotenv import load_dotenv
-from .db_works import get_urls_list, insert_url_to_db, get_data_single_url, get_conn
+from .db_works import (
+    get_urls_list,
+    get_conn,
+)
 
 from flask import (
     Flask,
@@ -21,19 +24,19 @@ app = Flask(__name__)
 
 load_dotenv()
 
-app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
-app.config['DATABASE_URL'] = os.getenv("DATABASE_URL")
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
+app.config["DATABASE_URL"] = os.getenv("DATABASE_URL")
 
 DATABASE_URL = os.getenv("DATABASE_URL")
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 
 def is_valid(url):
     if not validators.length(url, max=255):
-        return {'result': False, 'message': 'URL превышает 255 символов'}
+        return {"result": False, "message": "URL превышает 255 символов"}
     elif not validators.url(url):
-        return {'result': False, 'message': 'Некорректный URL'}
-    return {'result': True}
+        return {"result": False, "message": "Некорректный URL"}
+    return {"result": True}
 
 
 @app.route("/")
@@ -46,8 +49,8 @@ def index():
 def add_url():
     url_from_form = request.form.get("url")
     validated = is_valid(url_from_form)
-    if not validated['result']:
-        flash(validated['message'], "danger")
+    if not validated["result"]:
+        flash(validated["message"], "danger")
         messages = get_flashed_messages(with_categories=True)
         return (
             render_template(
