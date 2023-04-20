@@ -24,10 +24,11 @@ def get_conn():
 
 
 conn = get_conn()
-cursor = conn.cursor()
+
 
 
 def get_urls_list():
+    cursor = conn.cursor()
     cursor.execute(
         "SELECT urls.id, urls.name, url_checks.created_at, "
         "url_checks.status_code FROM urls "
@@ -41,6 +42,7 @@ def get_urls_list():
 
 
 def get_url_check(url_id):
+    cursor = conn.cursor()
     cursor.execute("SELECT name FROM urls WHERE id = %s LIMIT 1", (url_id,))
     url_to_check = cursor.fetchall()[0][0]
     session["name"] = url_to_check

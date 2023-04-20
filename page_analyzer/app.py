@@ -31,10 +31,10 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 
 def is_valid(url):
-    if not validators.length(url, max=255):
-        return {"result": False, "message": "URL превышает 255 символов"}
     if not validators.url(url):
         return {"result": False, "message": "Некорректный URL"}
+    if len(url) > 255:
+        return {"result": False, "message": "URL превышает 255 символов"}
     return {"result": True}
 
 
