@@ -26,7 +26,6 @@ def get_conn():
 conn = get_conn()
 
 
-
 def get_urls_list():
     cursor = conn.cursor()
     cursor.execute(
