@@ -76,7 +76,6 @@ def add_url():
             (url_from_form,),
         )
         url_id = cursor.fetchall()[0][0]
-        conn.close()
     else:
         flash("Страница уже существует", "info")
         conn.close()
