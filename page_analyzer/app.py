@@ -1,7 +1,5 @@
 import os
 
-import bs4
-import requests
 import validators
 from dotenv import load_dotenv
 from .db_works import (

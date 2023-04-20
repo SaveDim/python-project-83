@@ -6,14 +6,17 @@ import bs4
 from dotenv import load_dotenv
 
 from flask import (
-redirect, url_for, flash, session
+    redirect,
+    url_for,
+    flash,
+    session,
 )
 
 load_dotenv()
 
 
 DATABASE_URL = os.getenv("DATABASE_URL")
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 
 def get_conn():
