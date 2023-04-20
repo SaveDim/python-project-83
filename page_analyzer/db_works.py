@@ -1,7 +1,13 @@
 import os
 import psycopg2
+import requests
+import bs4
+
 from dotenv import load_dotenv
 
+from flask import (
+redirect, url_for, flash, session
+)
 
 load_dotenv()
 
@@ -31,9 +37,32 @@ def get_urls_list():
     return urls
 
 
-def insert_url_to_db():
-    pass
+def get_url_check(url_id):
+    cursor.execute("SELECT name FROM urls WHERE id = %s LIMIT 1", (url_id,))
+    url_to_check = cursor.fetchall()[0][0]
+    session["name"] = url_to_check
+    try:
+        response = requests.get(url_to_check)
+        response.raise_for_status()
+    except requests.exceptions.RequestException:
+        conn.close()
+        flash("Произошла ошибка при проверке", "danger")
+        return redirect(url_for("show_single_url", url_id=url_id))
 
+    status_code = response.status_code
+    parsed_page = bs4.BeautifulSoup(response.text, "html.parser")
+    title = parsed_page.title.text if parsed_page.find("title") else ""
+    h1 = parsed_page.h1.text if parsed_page.find("h1") else ""
+    description = parsed_page.find("meta", attrs={"name": "description"})
+    description = description.get("content") if description else ""
 
-def get_data_single_url():
-    pass
+    cursor.execute(
+        """
+        INSERT INTO public.url_checks
+            (url_id, status_code, title, h1, description)
+        VALUES (%s, %s, %s, %s, %s)
+        """,
+        (url_id, status_code, title, h1, description),
+    )
+    conn.commit()
+    flash("Страница успешно проверена", "success")
