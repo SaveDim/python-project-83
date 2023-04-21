@@ -68,7 +68,7 @@ def add_url():
     if not result:
         cursor.execute("INSERT INTO urls (name) VALUES (%s)", (url_from_form,))
         conn.commit()
-        flash("Страница успешно добавлена", "success")
+        flash("Страница успешно добавлена!", "success")
         session["name"] = url_from_form
 
         cursor.execute(
