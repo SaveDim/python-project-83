@@ -8,5 +8,13 @@
 ### Installatioin
 #### Clone the repository
 ```bash
-https://github.com/SaveDim/python-project-83
+git clone https://github.com/SaveDim/python-project-83
+cd python-project-83 
+# create .env file and add variables
+DATABASE_URL = postgresql://{provider}://{user}:{password}@{host}:{port}/{db}
+SECRET_KEY = '{your secret key}'
+# run commands from database.sql
+make install
+make dev
+make start
 ```
