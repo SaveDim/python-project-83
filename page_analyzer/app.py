@@ -2,6 +2,7 @@ import os
 
 import validators
 from dotenv import load_dotenv
+from .url_parser import parser
 from .db_works import (
     get_urls_list,
     get_url_check,
@@ -57,23 +58,23 @@ def add_url():
             ),
             422,
         )
-
+    parsed_url = parser(url_from_form)
     conn = get_conn()
     cursor = conn.cursor()
     cursor.execute(
         "SELECT id FROM urls WHERE urls.name = %s LIMIT 1",
-        (url_from_form,),
+        (parsed_url,),
     )
     result = cursor.fetchall()
     if not result:
-        cursor.execute("INSERT INTO urls (name) VALUES (%s)", (url_from_form,))
+        cursor.execute("INSERT INTO urls (name) VALUES (%s)", (parsed_url,))
         conn.commit()
         flash("Страница успешно добавлена!", "success")
-        session["name"] = url_from_form
+        session["name"] = parsed_url
 
         cursor.execute(
             "SELECT id FROM urls WHERE urls.name = %s LIMIT 1",
-            (url_from_form,),
+            (parsed_url,),
         )
         url_id = cursor.fetchall()[0][0]
     else:
