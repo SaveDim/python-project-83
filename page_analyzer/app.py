@@ -29,7 +29,7 @@ app.config["DATABASE_URL"] = os.getenv("DATABASE_URL")
 DATABASE_URL = os.getenv("DATABASE_URL")
 SECRET_KEY = os.getenv("SECRET_KEY")
 
-#
+
 def is_valid(url):
     if len(url) > 255:
         return {'result': False, 'message': 'URL превышает 255 символов'}
