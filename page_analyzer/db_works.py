@@ -27,25 +27,28 @@ conn = get_conn()
 
 
 def get_urls_list():
-    cursor = conn.cursor()
-    cursor.execute(
-        "SELECT urls.id, urls.name, url_checks.created_at, "
-        "url_checks.status_code FROM urls "
-        "LEFT JOIN url_checks ON urls.id = url_checks.url_id "
-        "WHERE url_checks.url_id IS NULL OR "
-        "url_checks.id = (SELECT MAX(url_checks.id) FROM url_checks "
-        "WHERE url_checks.url_id = urls.id) ORDER BY urls.id DESC "
-    )
-    urls = cursor.fetchall()
-    conn.close()
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as curs:
+            curs.execute(
+                "SELECT urls.id, urls.name, url_checks.created_at, "
+                "url_checks.status_code FROM urls "
+                "LEFT JOIN url_checks ON urls.id = url_checks.url_id "
+                "WHERE url_checks.url_id IS NULL OR "
+                "url_checks.id = (SELECT MAX(url_checks.id) FROM url_checks "
+                "WHERE url_checks.url_id = urls.id) ORDER BY urls.id DESC "
+            )
+            urls = curs.fetchall()
     return urls
 
 
 def get_url_check(url_id):
-    cursor = conn.cursor()
-    cursor.execute("SELECT name FROM urls WHERE id = %s LIMIT 1", (url_id,))
-    url_to_check = cursor.fetchall()[0][0]
-    session["name"] = url_to_check
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as curs:
+            curs.execute(
+                "SELECT name FROM urls WHERE id = %s LIMIT 1", (url_id,)
+            )
+            url_to_check = curs.fetchall()[0][0]
+            session["name"] = url_to_check
     try:
         response = requests.get(url_to_check)
         response.raise_for_status()
@@ -61,13 +64,14 @@ def get_url_check(url_id):
     description = parsed_page.find("meta", attrs={"name": "description"})
     description = description.get("content") if description else ""
 
-    cursor.execute(
-        """
-        INSERT INTO public.url_checks
-            (url_id, status_code, title, h1, description)
-        VALUES (%s, %s, %s, %s, %s)
-        """,
-        (url_id, status_code, title, h1, description),
-    )
-    conn.close()
-    flash("Страница успешно проверена", "success")
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as curs:
+            curs.execute(
+                """
+                        INSERT INTO public.url_checks
+                            (url_id, status_code, title, h1, description)
+                        VALUES (%s, %s, %s, %s, %s)
+                        """,
+                (url_id, status_code, title, h1, description),
+            )
+            flash("Страница успешно проверена", "success")
