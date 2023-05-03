@@ -77,6 +77,7 @@ def add_url():
             (parsed_url,),
         )
         url_id = cursor.fetchall()[0][0]
+        conn.close()
     else:
         flash("Страница уже существует", "info")
         conn.close()

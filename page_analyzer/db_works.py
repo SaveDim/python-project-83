@@ -37,6 +37,7 @@ def get_urls_list():
         "WHERE url_checks.url_id = urls.id) ORDER BY urls.id DESC "
     )
     urls = cursor.fetchall()
+    conn.close()
     return urls
 
 
@@ -68,5 +69,5 @@ def get_url_check(url_id):
         """,
         (url_id, status_code, title, h1, description),
     )
-    conn.commit()
+    conn.close()
     flash("Страница успешно проверена", "success")
