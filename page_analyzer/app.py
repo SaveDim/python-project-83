@@ -72,14 +72,14 @@ def add_url():
                 curs.execute(
                     "INSERT INTO urls (name) VALUES (%s)", (parsed_url,)
                 )
-        flash("Страница успешно добавлена!", "success")
-        session["name"] = parsed_url
+                flash("Страница успешно добавлена!", "success")
+                session["name"] = parsed_url
 
-        curs.execute(
-            "SELECT id FROM urls WHERE urls.name = %s LIMIT 1",
-            (parsed_url,),
-        )
-        url_id = curs.fetchall()[0][0]
+                curs.execute(
+                    "SELECT id FROM urls WHERE urls.name = %s LIMIT 1",
+                    (parsed_url,),
+                )
+                url_id = curs.fetchall()[0][0]
     else:
         flash("Страница уже существует", "info")
         conn.close()
