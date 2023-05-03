@@ -100,15 +100,17 @@ def show_single_url(url_id):
                 (url_id,),
             )
             result = curs.fetchall()
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as curs:
             curs.execute(
                 """
-                            SELECT
-                            id, status_code, h1, title,
-                            description, created_at
-                            FROM url_checks
-                            WHERE url_checks.url_id = %s
-                            ORDER BY id DESC
-                            """,
+                        SELECT
+                        id, status_code, h1, title,
+                        description, created_at
+                        FROM url_checks
+                        WHERE url_checks.url_id = %s
+                        ORDER BY id DESC
+                        """,
                 (url_id,),
             )
             checks = curs.fetchall()

@@ -53,8 +53,8 @@ def get_url_check(url_id):
         response = requests.get(url_to_check)
         response.raise_for_status()
     except requests.exceptions.RequestException:
-        conn.close()
         flash("Произошла ошибка при проверке", "danger")
+        conn.close()
         return redirect(url_for("show_single_url", url_id=url_id))
 
     status_code = response.status_code
