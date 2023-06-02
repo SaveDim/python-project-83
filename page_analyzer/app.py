@@ -4,7 +4,7 @@ import psycopg2
 import validators
 from dotenv import load_dotenv
 from .url_parser import parser
-from .db_works import (
+from .db import (
     get_urls_list,
     get_url_check,
 )
