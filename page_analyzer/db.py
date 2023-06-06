@@ -26,6 +26,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # conn = get_conn()
 # возможно не заработает программа из-зв это функции!!!!!!!!!!!!!!!!!!!!
 
+
 def get_urls_list():
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as curs:
