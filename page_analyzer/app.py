@@ -116,7 +116,7 @@ def show_single_url(url_id):
             checks = curs.fetchall()
 
     return render_template(
-        "/url.html", url=result[0], checks=checks, messages=messages
+        "url.html", url=result[0], checks=checks, messages=messages
     )
 
 
@@ -125,7 +125,7 @@ def show_urls():
     messages = get_flashed_messages(with_categories=True)
     urls = get_urls_list()
     return render_template(
-        "/urls.html",
+        "urls.html",
         urls=urls,
         messages=messages,
     )
