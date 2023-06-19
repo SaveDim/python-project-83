@@ -1,4 +1,6 @@
 import os
+from urllib import request
+
 import psycopg2
 import requests
 import bs4
@@ -10,7 +12,10 @@ from flask import (
     url_for,
     flash,
     session,
+    request
 )
+
+from page_analyzer.url_parser import parser
 
 load_dotenv()
 
@@ -68,3 +73,33 @@ def get_url_check(url_id):
                 (url_id, status_code, title, h1, description),
             )
             flash("Страница успешно проверена", "success")
+
+def insert_url_into_db():
+    url_from_form = request.form.get("url")
+    parsed_url = parser(url_from_form)
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as curs:
+            curs.execute(
+                "SELECT id FROM urls WHERE urls.name = %s LIMIT 1",
+                (parsed_url,),
+            )
+            signle_url = curs.fetchall()
+    if not signle_url:
+        with psycopg2.connect(DATABASE_URL) as conn:
+            with conn.cursor() as curs:
+                curs.execute(
+                    "INSERT INTO urls (name) VALUES (%s)", (parsed_url,)
+                )
+                flash("Страница успешно добавлена!", "success")
+                session["name"] = parsed_url
+
+                curs.execute(
+                    "SELECT id FROM urls WHERE urls.name = %s LIMIT 1",
+                    (parsed_url,),
+                )
+                url_id = curs.fetchall()[0][0]
+    else:
+        flash("Страница уже существует", "info")
+        conn.close()
+        url_id = signle_url[0][0]
+    return url_id
