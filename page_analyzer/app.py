@@ -1,11 +1,11 @@
 import os
-import psycopg2
 
 import validators
 from dotenv import load_dotenv
 from .db import (
     get_urls_list,
     get_url_check, insert_url_into_db,
+    select_url, select_checks
 )
 
 from flask import (
@@ -63,31 +63,8 @@ def add_url():
 @app.route("/urls/<int:url_id>")
 def show_single_url(url_id):
     messages = get_flashed_messages(with_categories=True)
-    with psycopg2.connect(DATABASE_URL) as conn:
-        with conn.cursor() as curs:
-            curs.execute(
-                """SELECT *
-                FROM urls
-                WHERE urls.id = %s
-                LIMIT 1""",
-                (url_id,),
-            )
-            single_url = curs.fetchall()
-    with psycopg2.connect(DATABASE_URL) as conn:
-        with conn.cursor() as curs:
-            curs.execute(
-                """
-                        SELECT
-                        id, status_code, h1, title,
-                        description, created_at
-                        FROM url_checks
-                        WHERE url_checks.url_id = %s
-                        ORDER BY id DESC
-                        """,
-                (url_id,),
-            )
-            checks = curs.fetchall()
-
+    single_url = select_url(url_id)
+    checks = select_checks(url_id)
     return render_template(
         "url.html", url=single_url[0], checks=checks, messages=messages
     )

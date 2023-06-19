@@ -103,3 +103,35 @@ def insert_url_into_db():
         conn.close()
         url_id = signle_url[0][0]
     return url_id
+
+
+def select_url(url_id):
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as curs:
+            curs.execute(
+                """SELECT *
+                FROM urls
+                WHERE urls.id = %s
+                LIMIT 1""",
+                (url_id,),
+            )
+            single_url = curs.fetchall()
+    return single_url
+
+
+def select_checks(url_id):
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as curs:
+            curs.execute(
+                """
+                        SELECT
+                        id, status_code, h1, title,
+                        description, created_at
+                        FROM url_checks
+                        WHERE url_checks.url_id = %s
+                        ORDER BY id DESC
+                        """,
+                (url_id,),
+            )
+            checks = curs.fetchall()
+    return checks
