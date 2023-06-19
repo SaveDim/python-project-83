@@ -1,5 +1,4 @@
 import os
-from urllib import request
 
 import psycopg2
 import requests
@@ -73,6 +72,7 @@ def get_url_check(url_id):
                 (url_id, status_code, title, h1, description),
             )
             flash("Страница успешно проверена", "success")
+
 
 def insert_url_into_db():
     url_from_form = request.form.get("url")

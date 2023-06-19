@@ -72,7 +72,7 @@ def show_single_url(url_id):
                 LIMIT 1""",
                 (url_id,),
             )
-            result = curs.fetchall()
+            single_url = curs.fetchall()
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as curs:
             curs.execute(
@@ -89,7 +89,7 @@ def show_single_url(url_id):
             checks = curs.fetchall()
 
     return render_template(
-        "url.html", url=result[0], checks=checks, messages=messages
+        "url.html", url=single_url[0], checks=checks, messages=messages
     )
 
 
